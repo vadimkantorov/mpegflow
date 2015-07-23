@@ -1,0 +1,16 @@
+OPENCV_DIR = dependencies/opencv/build
+FFMPEG_DIR = dependencies/ffmpeg-2.4.5-win64-dev
+VC_VERSION = vc12
+OPENCV_ARCH = x64
+
+LIBINCLUDE = /I$(OPENCV_DIR)/include /I$(FFMPEG_DIR)/include /I.
+LIBPATH = /LIBPATH:$(OPENCV_DIR)/$(OPENCV_ARCH)/$(VC_VERSION)/staticlib /LIBPATH:$(FFMPEG_DIR)/lib
+LIBS = zlib.lib opencv_core249.lib opencv_imgproc249.lib avcodec.lib avformat.lib avutil.lib swscale.lib swresample.lib
+BIN = mpegflow.exe
+
+all:
+	if exist msinttypes.h (rename msinttypes.h inttypes.h)
+	cl /MT /EHsc $(LIBINCLUDE) main.cpp /link $(LIBS) $(LIBPATH) /OUT:$(BIN)
+
+clean:
+	del $(BIN)
