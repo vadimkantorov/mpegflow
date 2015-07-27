@@ -165,8 +165,10 @@ struct FrameInfo
 	int64_t Pts;
 	int FrameIndex;
 	char PictType;
+	const char* Origin;
 	pair<size_t, size_t> Shape;
 	bool Empty;
+	bool Printed;
 
 	FrameInfo()
 	{
@@ -174,11 +176,15 @@ struct FrameInfo
 		memset(dy, 0, sizeof(dy));
 		memset(occupancy, 0, sizeof(occupancy));
 		Empty = true;
+		Printed = false;
+		PictType = '?';
+		FrameIndex = -1;
+		Pts = -1;
+		Origin = "";
 	}
 
 	void InterpolateFlow(FrameInfo& prev, FrameInfo& next)
 	{
-		Empty = false;
 		for(int i = 0; i < Shape.first; i++)
 		{
 			for(int j = 0; j < Shape.second; j++)
@@ -187,11 +193,21 @@ struct FrameInfo
 				dy[i][j] = (prev.dy[i][j] + next.dy[i][j]) / 2;
 			}
 		}
+		Empty = false;
+		Origin = "interpolated";
 	}
 
-	void Print()
+	void PrintIfNotPrinted()
 	{
-		printf("# pts=%ld frame_index=%d pict_type=%c output_type=arranged shape=%lux%lu\n", Pts, FrameIndex, PictType, Shape.first, Shape.second);
+		static int64_t FirstPts = -1;
+
+		if(Printed)
+			return;
+
+		if(FirstPts == -1)
+			FirstPts = Pts;
+
+		printf("# pts=%ld frame_index=%d pict_type=%c output_type=arranged shape=%lux%lu origin=%s\n", Pts - FirstPts, FrameIndex, PictType, 2*Shape.first, Shape.second, Origin);
 		for(int i = 0; i < Shape.first; i++)
 		{
 			for(int j = 0; j < Shape.second; j++)
@@ -208,6 +224,7 @@ struct FrameInfo
 			}
 			printf("\n");
 		}
+		Printed = true;
 	}
 };
 
@@ -228,9 +245,23 @@ void output_vectors_std(int frameIndex, int64_t pts, char pictType, vector<AVMot
 {
 	static vector<FrameInfo> prev;
 
+	if(!prev.empty() && pts != prev.back().Pts + 1)
+	{
+		for(int64_t dummy_pts = prev.back().Pts + 1; dummy_pts < pts; dummy_pts++)
+		{
+			FrameInfo dummy;
+			dummy.FrameIndex = -1;
+			dummy.Pts = dummy_pts;
+			dummy.Origin = "dummy";
+			dummy.Shape = prev.front().Shape;
+			prev.push_back(dummy);
+		}
+	}
+
 	FrameInfo cur;
 	cur.FrameIndex = frameIndex;
 	cur.Pts = pts;
+	cur.Origin = "video";
 	cur.PictType = pictType;
 	cur.Shape = make_pair(min(frameHeight / FrameInfo::GRID_STEP, FrameInfo::MAX_GRID_SIZE), min(frameWidth / FrameInfo::GRID_STEP, FrameInfo::MAX_GRID_SIZE));
 
@@ -250,27 +281,26 @@ void output_vectors_std(int frameIndex, int64_t pts, char pictType, vector<AVMot
 		cur.dy[i_clipped][j_clipped] = mvdy;
 		cur.occupancy[i_clipped][j_clipped] = false;
 	}
-
-	if(!motionVectors.empty())
+	
+	if(frameIndex == -1)
+	{
+		for(int i = 0; i < prev.size(); i++)
+			prev[i].PrintIfNotPrinted();
+	}
+	else if(!motionVectors.empty())
 	{
 		if(prev.size() == 2 && prev.front().Empty == false)
 		{
 			prev.back().InterpolateFlow(prev.front(), cur);
-			prev.back().Print();
+			prev.back().PrintIfNotPrinted();
 		}
 		else
 		{
 			for(int i = 0; i < prev.size(); i++)
-				prev[i].Print();
+				prev[i].PrintIfNotPrinted();
 		}
 		prev.clear();
-		cur.Print();
-	}
-
-	if(frameIndex == -1)
-	{
-		for(int i = 0; i < prev.size(); i++)
-			prev[i].Print();
+		cur.PrintIfNotPrinted();
 	}
 
 	prev.push_back(cur);
@@ -302,16 +332,24 @@ int main(int argc, const char* argv[])
 
 	ffmpeg_init(ARG_VIDEO_PATH, pFrame, pFormatCtx, pVideoStream, videoStreamIndex, frameWidth, frameHeight);
 		
-	int64_t pts;
+	int64_t pts, prev_pts = -1;
 	char pictType;
 	vector<AVMotionVector> motionVectors;
 
 	for(int frameIndex = 1; read_frame(pFrame, pFormatCtx, pVideoStream, videoStreamIndex, pts, pictType, motionVectors); frameIndex++)
 	{
+		if(pts <= prev_pts && prev_pts != -1)
+		{
+			fprintf(stderr, "Skipping frame %d (frame with pts %d already processed)\n", int(frameIndex), int(pts));
+			continue;
+		}
+
 		if(ARG_OUTPUT_RAW_MOTION_VECTORS)
 			output_vectors_raw(frameIndex, pts, pictType, motionVectors);
 		else
 			output_vectors_std(frameIndex, pts, pictType, motionVectors, frameWidth, frameHeight);
+
+		prev_pts = pts;
 	}
 	if(ARG_OUTPUT_RAW_MOTION_VECTORS == false)
 		output_vectors_std(-1, pts, pictType, motionVectors, frameWidth, frameHeight);
