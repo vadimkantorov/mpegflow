@@ -10,10 +10,10 @@
 
 extern "C"
 {
-#include <libavcodec/avcodec.h>
-#include <libavformat/avformat.h>
-#include <libswscale/swscale.h>
-#include <libavutil/motion_vector.h>
+	#include <libavcodec/avcodec.h>
+	#include <libavformat/avformat.h>
+	#include <libswscale/swscale.h>
+	#include <libavutil/motion_vector.h>
 }
 
 #include <string>
@@ -22,6 +22,15 @@ extern "C"
 #include <stdexcept>
 
 using namespace std;
+
+AVFrame* ffmpeg_pFrame;
+AVFormatContext* ffmpeg_pFormatCtx;
+AVStream* ffmpeg_pVideoStream;
+int ffmpeg_videoStreamIndex;
+size_t ffmpeg_frameWidth, ffmpeg_frameHeight;
+
+bool ARG_OUTPUT_RAW_MOTION_VECTORS, ARG_FORCE_GRID_8, ARG_FORCE_GRID_16, ARG_OUTPUT_OCCUPANCY;
+const char* ARG_VIDEO_PATH;
 
 void ffmpeg_print_error(int err) // copied from cmdutils.c, originally called print_error
 {
@@ -33,32 +42,32 @@ void ffmpeg_print_error(int err) // copied from cmdutils.c, originally called pr
 	av_log(NULL, AV_LOG_ERROR, "ffmpeg_print_error: %s\n", errbuf_ptr);
 }
 
-void ffmpeg_init(const char* videoPath, AVFrame*& pFrame, AVFormatContext*& pFormatCtx, AVStream*& pVideoStream, int& videoStreamIndex, size_t& frameWidth, size_t& frameHeight)
+void ffmpeg_init(const char* videoPath)
 {
 	av_register_all();
 
-	pFrame = av_frame_alloc();
-	pFormatCtx = avformat_alloc_context();
-	videoStreamIndex = -1;
+	ffmpeg_pFrame = av_frame_alloc();
+	ffmpeg_pFormatCtx = avformat_alloc_context();
+	ffmpeg_videoStreamIndex = -1;
 
 	int err = 0;
 
-	if ((err = avformat_open_input(&pFormatCtx, videoPath, NULL, NULL)) != 0)
+	if ((err = avformat_open_input(&ffmpeg_pFormatCtx, videoPath, NULL, NULL)) != 0)
 	{
 		ffmpeg_print_error(err);
 		throw std::runtime_error("Couldn't open file. Possibly it doesn't exist.");
 	}
 
-	if ((err = avformat_find_stream_info(pFormatCtx, NULL)) < 0)
+	if ((err = avformat_find_stream_info(ffmpeg_pFormatCtx, NULL)) < 0)
 	{
 		ffmpeg_print_error(err);
 		throw std::runtime_error("Stream information not found.");
 	}
 
-	for(int i = 0; i < pFormatCtx->nb_streams; i++)
+	for(int i = 0; i < ffmpeg_pFormatCtx->nb_streams; i++)
 	{
-		AVCodecContext *enc = pFormatCtx->streams[i]->codec;
-		if( AVMEDIA_TYPE_VIDEO == enc->codec_type && videoStreamIndex < 0 )
+		AVCodecContext *enc = ffmpeg_pFormatCtx->streams[i]->codec;
+		if( AVMEDIA_TYPE_VIDEO == enc->codec_type && ffmpeg_videoStreamIndex < 0 )
 		{
 			AVCodec *pCodec = avcodec_find_decoder(enc->codec_id);
 			AVDictionary *opts = NULL;
@@ -66,25 +75,25 @@ void ffmpeg_init(const char* videoPath, AVFrame*& pFrame, AVFormatContext*& pFor
 			if (!pCodec || avcodec_open2(enc, pCodec, &opts) < 0)
 				throw std::runtime_error("Codec not found or cannot open codec.");
 
-			videoStreamIndex = i;
-			pVideoStream = pFormatCtx->streams[i];
-			frameWidth = enc->width;
-			frameHeight = enc->height;
+			ffmpeg_videoStreamIndex = i;
+			ffmpeg_pVideoStream = ffmpeg_pFormatCtx->streams[i];
+			ffmpeg_frameWidth = enc->width;
+			ffmpeg_frameHeight = enc->height;
 
 			break;
 		}
 	}
 
-	if(videoStreamIndex == -1)
+	if(ffmpeg_videoStreamIndex == -1)
 		throw std::runtime_error("Video stream not found.");
 }
 
-bool process_frame(AVPacket *pkt, AVFrame* pFrame, AVStream* pVideoStream)
+bool process_frame(AVPacket *pkt)
 {
-	av_frame_unref(pFrame);
+	av_frame_unref(ffmpeg_pFrame);
 
 	int got_frame = 0;
-	int ret = avcodec_decode_video2(pVideoStream->codec, pFrame, &got_frame, pkt);
+	int ret = avcodec_decode_video2(ffmpeg_pVideoStream->codec, ffmpeg_pFrame, &got_frame, pkt);
 	if (ret < 0)
 		return false;
 
@@ -94,7 +103,7 @@ bool process_frame(AVPacket *pkt, AVFrame* pFrame, AVStream* pVideoStream)
 	return got_frame > 0;
 }
 
-bool read_packets(AVFrame* pFrame, AVFormatContext* pFormatCtx, AVStream* pVideoStream, int videoStreamIndex)
+bool read_packets()
 {
 	static bool initialized = false;
 	static AVPacket pkt, pktCopy;
@@ -103,7 +112,7 @@ bool read_packets(AVFrame* pFrame, AVFormatContext* pFormatCtx, AVStream* pVideo
 	{
 		if(initialized)
 		{
-			if(process_frame(&pktCopy, pFrame, pVideoStream))
+			if(process_frame(&pktCopy))
 				return true;
 			else
 			{
@@ -112,13 +121,13 @@ bool read_packets(AVFrame* pFrame, AVFormatContext* pFormatCtx, AVStream* pVideo
 			}
 		}
 
-		int ret = av_read_frame(pFormatCtx, &pkt);
+		int ret = av_read_frame(ffmpeg_pFormatCtx, &pkt);
 		if(ret != 0)
 			break;
 
 		initialized = true;
 		pktCopy = pkt;
-		if(pkt.stream_index != videoStreamIndex)
+		if(pkt.stream_index != ffmpeg_videoStreamIndex)
 		{
 			av_free_packet(&pkt);
 			initialized = false;
@@ -126,22 +135,22 @@ bool read_packets(AVFrame* pFrame, AVFormatContext* pFormatCtx, AVStream* pVideo
 		}
 	}
 
-	return process_frame(&pkt, pFrame, pVideoStream);
+	return process_frame(&pkt);
 }
 
-bool read_frame(AVFrame* pFrame, AVFormatContext* pFormatCtx, AVStream* pVideoStream, int videoStreamIndex, int64_t& pts, char& pictType, vector<AVMotionVector>& motion_vectors)
+bool read_frame(int64_t& pts, char& pictType, vector<AVMotionVector>& motion_vectors)
 {
-	if(!read_packets(pFrame, pFormatCtx, pVideoStream, videoStreamIndex))
+	if(!read_packets())
 		return false;
 	
-	pictType = av_get_picture_type_char(pFrame->pict_type);
+	pictType = av_get_picture_type_char(ffmpeg_pFrame->pict_type);
 	// fragile, consult fresh f_select.c and ffprobe.c when updating ffmpeg
-	pts = pFrame->pkt_pts != AV_NOPTS_VALUE ? pFrame->pkt_pts : (pFrame->pkt_dts != AV_NOPTS_VALUE ? pFrame->pkt_dts : pts + 1);
-	bool noMotionVectors = av_frame_get_side_data(pFrame, AV_FRAME_DATA_MOTION_VECTORS) == NULL;
+	pts = ffmpeg_pFrame->pkt_pts != AV_NOPTS_VALUE ? ffmpeg_pFrame->pkt_pts : (ffmpeg_pFrame->pkt_dts != AV_NOPTS_VALUE ? ffmpeg_pFrame->pkt_dts : pts + 1);
+	bool noMotionVectors = av_frame_get_side_data(ffmpeg_pFrame, AV_FRAME_DATA_MOTION_VECTORS) == NULL;
 	if(!noMotionVectors)
 	{
 		// reading motion vectors, see ff_print_debug_info2 in ffmpeg's libavcodec/mpegvideo.c for reference and a fresh doc/examples/extract_mvs.c
-		AVFrameSideData* sd = av_frame_get_side_data(pFrame, AV_FRAME_DATA_MOTION_VECTORS);
+		AVFrameSideData* sd = av_frame_get_side_data(ffmpeg_pFrame, AV_FRAME_DATA_MOTION_VECTORS);
 		AVMotionVector* mvs = (AVMotionVector*)sd->data;
 		int mvcount = sd->size / sizeof(AVMotionVector);
 		motion_vectors = vector<AVMotionVector>(mvs, mvs + mvcount);
@@ -156,8 +165,10 @@ bool read_frame(AVFrame* pFrame, AVFormatContext* pFormatCtx, AVStream* pVideoSt
 
 struct FrameInfo
 {
-	const static int GRID_STEP = 16;
-	const static int MAX_GRID_SIZE = 512;
+	const static size_t MAX_GRID_SIZE = 512;
+
+	static size_t GRID_STEP;
+	static pair<size_t, size_t> Shape;
 
 	int dx[MAX_GRID_SIZE][MAX_GRID_SIZE];
 	int dy[MAX_GRID_SIZE][MAX_GRID_SIZE];
@@ -166,7 +177,6 @@ struct FrameInfo
 	int FrameIndex;
 	char PictType;
 	const char* Origin;
-	pair<size_t, size_t> Shape;
 	bool Empty;
 	bool Printed;
 
@@ -197,6 +207,58 @@ struct FrameInfo
 		Origin = "interpolated";
 	}
 
+	void SetShapeIfNotSet(vector<AVMotionVector>& motionVectors)
+	{
+		if(GRID_STEP == 0)
+		{
+			if(ARG_FORCE_GRID_8)
+			{
+				GRID_STEP = 8;
+			}
+			else if(ARG_FORCE_GRID_16)
+			{
+				GRID_STEP = 16;
+			}
+			else
+			{
+				int mb8 = 0;
+				for(int i = 0; i < motionVectors.size(); i++)
+					mb8 += (motionVectors[i].w == 8 ? 1 : 0) + (motionVectors[i].h == 8 ? 1 : 0);
+				
+				GRID_STEP = mb8 > int(0.1 * 2 * motionVectors.size()) ? 8 : 16;
+			}
+			Shape = make_pair(min(ffmpeg_frameHeight / GRID_STEP, MAX_GRID_SIZE), min(ffmpeg_frameWidth / GRID_STEP, MAX_GRID_SIZE));
+		}
+	}
+
+	void FillInSomeMissingVectorsInGrid8()
+	{
+		for(int k = 0; k < 2; k++)
+		{
+			for(int i = 1; i < Shape.first - 1; i++)
+			{
+				for(int j = 1; j < Shape.second - 1; j++)
+				{
+					if(occupancy[i][j] == 0)
+					{
+						if(occupancy[i][j - 1] != 0 && occupancy[i][j + 1] != 0)
+						{
+							dx[i][j] = (dx[i][j -1] + dx[i][j + 1]) / 2;
+							dy[i][j] = (dy[i][j -1] + dy[i][j + 1]) / 2;
+							occupancy[i][j] = 2;
+						}
+						else if(occupancy[i - 1][j] != 0 && occupancy[i + 1][j] != 0)
+						{
+							dx[i][j] = (dx[i - 1][j] + dx[i + 1][j]) / 2;
+							dy[i][j] = (dy[i - 1][j] + dy[i + 1][j]) / 2;
+							occupancy[i][j] = 2;
+						}
+					}
+				}
+			}
+		}
+	}
+
 	void PrintIfNotPrinted()
 	{
 		static int64_t FirstPts = -1;
@@ -206,8 +268,8 @@ struct FrameInfo
 
 		if(FirstPts == -1)
 			FirstPts = Pts;
-
-		printf("# pts=%ld frame_index=%d pict_type=%c output_type=arranged shape=%lux%lu origin=%s\n", Pts - FirstPts, FrameIndex, PictType, 2*Shape.first, Shape.second, Origin);
+		
+		printf("# pts=%ld frame_index=%d pict_type=%c output_type=arranged shape=%lux%lu origin=%s\n", Pts - FirstPts, FrameIndex, PictType, (ARG_OUTPUT_OCCUPANCY ? 3 : 2) * Shape.first, Shape.second, Origin);
 		for(int i = 0; i < Shape.first; i++)
 		{
 			for(int j = 0; j < Shape.second; j++)
@@ -224,9 +286,25 @@ struct FrameInfo
 			}
 			printf("\n");
 		}
+
+		if(ARG_OUTPUT_OCCUPANCY)
+		{
+			for(int i = 0; i < Shape.first; i++)
+			{
+				for(int j = 0; j < Shape.second; j++)
+				{
+					printf("%d\t", occupancy[i][j]);
+				}
+				printf("\n");
+			}
+		}
+
 		Printed = true;
 	}
 };
+
+size_t FrameInfo::GRID_STEP;
+pair<size_t, size_t> FrameInfo::Shape;
 
 void output_vectors_raw(int frameIndex, int64_t pts, char pictType, vector<AVMotionVector>& motionVectors)
 {
@@ -237,11 +315,11 @@ void output_vectors_raw(int frameIndex, int64_t pts, char pictType, vector<AVMot
 		int mvdx = mv.src_x - mv.dst_x;
 		int mvdy = mv.src_y - mv.dst_y;
 
-		printf("%d\t%d\t%d\t%d\n", mv.src_x, mv.src_y, mvdx, mvdy);
+		printf("%d\t%d\t%d\t%d\n", mv.dst_x, mv.dst_y, mvdx, mvdy);
 	}
 }
 
-void output_vectors_std(int frameIndex, int64_t pts, char pictType, vector<AVMotionVector>& motionVectors, int frameWidth, int frameHeight)
+void output_vectors_std(int frameIndex, int64_t pts, char pictType, vector<AVMotionVector>& motionVectors)
 {
 	static vector<FrameInfo> prev;
 
@@ -253,7 +331,7 @@ void output_vectors_std(int frameIndex, int64_t pts, char pictType, vector<AVMot
 			dummy.FrameIndex = -1;
 			dummy.Pts = dummy_pts;
 			dummy.Origin = "dummy";
-			dummy.Shape = prev.front().Shape;
+			dummy.PictType = '?';
 			prev.push_back(dummy);
 		}
 	}
@@ -263,7 +341,7 @@ void output_vectors_std(int frameIndex, int64_t pts, char pictType, vector<AVMot
 	cur.Pts = pts;
 	cur.Origin = "video";
 	cur.PictType = pictType;
-	cur.Shape = make_pair(min(frameHeight / FrameInfo::GRID_STEP, FrameInfo::MAX_GRID_SIZE), min(frameWidth / FrameInfo::GRID_STEP, FrameInfo::MAX_GRID_SIZE));
+	cur.SetShapeIfNotSet(motionVectors);
 
 	for(int i = 0; i < motionVectors.size(); i++)
 	{
@@ -271,16 +349,17 @@ void output_vectors_std(int frameIndex, int64_t pts, char pictType, vector<AVMot
 		int mvdx = mv.src_x - mv.dst_x;
 		int mvdy = mv.src_y - mv.dst_y;
 
-		size_t i_clipped = mv.src_y / FrameInfo::GRID_STEP;
-		size_t j_clipped = mv.src_x / FrameInfo::GRID_STEP;
-		i_clipped = max(size_t(0), min(i_clipped, cur.Shape.first - 1)); 
-		j_clipped = max(size_t(0), min(j_clipped, cur.Shape.second - 1));
+		size_t i_clipped = max(size_t(0), min(mv.dst_y / FrameInfo::GRID_STEP, FrameInfo::Shape.first - 1)); 
+		size_t j_clipped = max(size_t(0), min(mv.dst_x / FrameInfo::GRID_STEP, FrameInfo::Shape.second - 1));
 
 		cur.Empty = false;
 		cur.dx[i_clipped][j_clipped] = mvdx;
 		cur.dy[i_clipped][j_clipped] = mvdy;
-		cur.occupancy[i_clipped][j_clipped] = false;
+		cur.occupancy[i_clipped][j_clipped] = true;
 	}
+
+	if(FrameInfo::GRID_STEP == 8)
+		cur.FillInSomeMissingVectorsInGrid8();
 	
 	if(frameIndex == -1)
 	{
@@ -306,37 +385,34 @@ void output_vectors_std(int frameIndex, int64_t pts, char pictType, vector<AVMot
 	prev.push_back(cur);
 }
 
-
 int main(int argc, const char* argv[])
 {
-	bool ARG_OUTPUT_RAW_MOTION_VECTORS = false;
-	const char* ARG_VIDEO_PATH = NULL;
 	for(int i = 1; i < argc; i++)
 	{
 		if(strcmp(argv[i], "--raw") == 0)
 			ARG_OUTPUT_RAW_MOTION_VECTORS = true;
+		else if(strcmp(argv[i], "--forcegrid8") == 0)
+			ARG_FORCE_GRID_8 = true;
+		else if(strcmp(argv[i], "--forcegrid16") == 0)
+			ARG_FORCE_GRID_16 = true;
+		else if(strcmp(argv[i], "--occupancy") == 0)
+			ARG_OUTPUT_OCCUPANCY = true;
 		else
 			ARG_VIDEO_PATH = argv[i];
 	}
 	if(ARG_VIDEO_PATH == NULL)
 	{
-		fprintf(stderr, "Usage: mpegflow [--raw] videoPath\n\n  Specify --raw flag to prevent motion vectors from being arranged in a matrix.\n\n");
+		fprintf(stderr, "Usage: mpegflow [--raw | [[--forcegrid8 | --forcegrid16] [--occupancy]] videoPath\n  --raw will prevent motion vectors from being arranged in a matrix.\n  --forcegrid8 will force fine 8x8 grid.\n  --forcegrid16 will to force coarse 16x16 grid.\n  --occupancy will append occupancy matrix after motion vector matrices. \n");
 		exit(1);
 	}
 
-	AVFrame* pFrame;
-	AVFormatContext* pFormatCtx;
-	AVStream* pVideoStream;
-	int videoStreamIndex;
-	size_t frameWidth, frameHeight;
-
-	ffmpeg_init(ARG_VIDEO_PATH, pFrame, pFormatCtx, pVideoStream, videoStreamIndex, frameWidth, frameHeight);
+	ffmpeg_init(ARG_VIDEO_PATH);
 		
 	int64_t pts, prev_pts = -1;
 	char pictType;
 	vector<AVMotionVector> motionVectors;
 
-	for(int frameIndex = 1; read_frame(pFrame, pFormatCtx, pVideoStream, videoStreamIndex, pts, pictType, motionVectors); frameIndex++)
+	for(int frameIndex = 1; read_frame(pts, pictType, motionVectors); frameIndex++)
 	{
 		if(pts <= prev_pts && prev_pts != -1)
 		{
@@ -347,10 +423,10 @@ int main(int argc, const char* argv[])
 		if(ARG_OUTPUT_RAW_MOTION_VECTORS)
 			output_vectors_raw(frameIndex, pts, pictType, motionVectors);
 		else
-			output_vectors_std(frameIndex, pts, pictType, motionVectors, frameWidth, frameHeight);
+			output_vectors_std(frameIndex, pts, pictType, motionVectors);
 
 		prev_pts = pts;
 	}
 	if(ARG_OUTPUT_RAW_MOTION_VECTORS == false)
-		output_vectors_std(-1, pts, pictType, motionVectors, frameWidth, frameHeight);
+		output_vectors_std(-1, pts, pictType, motionVectors);
 }
