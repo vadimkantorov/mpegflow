@@ -1,4 +1,4 @@
-rm -rf opencv-2.4.11.zip opencv-2.4.11
+rm -rf opencv-2.4.11.tar.gz opencv-2.4.11
 
 export MAKEFLAGS=-j16
 
