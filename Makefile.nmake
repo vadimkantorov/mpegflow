@@ -9,8 +9,7 @@ LIBS = zlib.lib opencv_core249.lib opencv_imgproc249.lib avcodec.lib avformat.li
 BIN = mpegflow.exe
 
 all:
-	if exist msinttypes.h (rename msinttypes.h inttypes.h)
-	cl /MT /EHsc $(LIBINCLUDE) main.cpp /link $(LIBS) $(LIBPATH) /OUT:$(BIN)
+	cl /MT /EHsc /FI msinttypes.h $(LIBINCLUDE) main.cpp /link $(LIBS) $(LIBPATH) /OUT:$(BIN)
 
 clean:
 	del $(BIN)

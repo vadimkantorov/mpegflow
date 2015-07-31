@@ -416,7 +416,7 @@ void parse_options(int argc, const char* argv[])
 	}
 	if(ARG_HELP || ARG_VIDEO_PATH == NULL)
 	{
-		fprintf(stderr, "Usage: mpegflow [--raw | [[--forcegrid8 | --forcegrid16] [--occupancy]] videoPath\n  --help and -h will output this help message.\n  --raw will prevent motion vectors from being arranged in a matrix.\n  --forcegrid8 will force fine 8x8 grid.\n  --forcegrid16 will to force coarse 16x16 grid.\n  --occupancy will append occupancy matrix after motion vector matrices.\n  --quiet will suppress debug output.\n");
+		fprintf(stderr, "Usage: mpegflow [--raw | [[--forcegrid8 | --forcegrid16] [--occupancy]] videoPath\n  --help and -h will output this help message.\n  --raw will prevent motion vectors from being arranged in matrices.\n  --forcegrid8 will force fine 8x8 grid.\n  --forcegrid16 will force coarse 16x16 grid.\n  --occupancy will append occupancy matrix after motion vector matrices.\n  --quiet will suppress debug output.\n");
 		exit(1);
 	}
 }
