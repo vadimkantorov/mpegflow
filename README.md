@@ -4,6 +4,15 @@ We release **mpegflow** for easy extraction of MPEG-flow (motion vectors) from v
 
 Please submit bugs on [GitHub](http://github.com/vadimkantorov/mpeflow/issues) directly. For any other question, please contact Vadim Kantorov at vadim.kantorov@inria.fr or vadim.kantorov@gmail.com.
 
+If you use this code, please cite our work:
+
+> @inproceedings{kantorov2014,  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;author = {Kantorov, V. and Laptev, I.},  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;title = {Efficient feature extraction, encoding and classification for action recognition},  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;booktitle = {Proc. Computer Vision and Pattern Recognition (CVPR), IEEE, 2014},  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;year = {2014}  
+}
+
 # mpegflow
 The tool accepts a video file path as command-line argument and writes MPEG-flow (motion vectors) to standard output. By default, the tool outputs the motion vectors arranged in two matrices - dx and dy.
 
