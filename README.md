@@ -43,6 +43,3 @@ Option | Description
 
 To build tools on Windows, fix OPENCV_DIR, FFMPEG_DIR, VC_VERSION, OPENCV_ARCH in Makefile.nmake if needed, and run from Visual Studio Developer Command Prompt (VS2013 x64 Native Tools Command Prompt from VS2013 Community Edition worked for us):
  > $ nmake -f Makefile.nmake
-
-# License
-All code and scripts are licensed under the [MIT license](http://github.com/vadimkantorov/mpegflow/blob/master/LICENSE).
