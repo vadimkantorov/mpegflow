@@ -29,7 +29,7 @@ AVStream* ffmpeg_pVideoStream;
 int ffmpeg_videoStreamIndex;
 size_t ffmpeg_frameWidth, ffmpeg_frameHeight;
 
-bool ARG_OUTPUT_RAW_MOTION_VECTORS, ARG_FORCE_GRID_8, ARG_FORCE_GRID_16, ARG_OUTPUT_OCCUPANCY;
+bool ARG_OUTPUT_RAW_MOTION_VECTORS, ARG_FORCE_GRID_8, ARG_FORCE_GRID_16, ARG_OUTPUT_OCCUPANCY, ARG_QUIET, ARG_HELP;
 const char* ARG_VIDEO_PATH;
 
 void ffmpeg_print_error(int err) // copied from cmdutils.c, originally called print_error
@@ -42,9 +42,19 @@ void ffmpeg_print_error(int err) // copied from cmdutils.c, originally called pr
 	av_log(NULL, AV_LOG_ERROR, "ffmpeg_print_error: %s\n", errbuf_ptr);
 }
 
-void ffmpeg_init(const char* videoPath)
+void ffmpeg_log_callback_null(void *ptr, int level, const char *fmt, va_list vl)
+{
+}
+
+void ffmpeg_init()
 {
 	av_register_all();
+
+	if(ARG_QUIET)
+	{
+		av_log_set_level(AV_LOG_ERROR);
+		av_log_set_callback(ffmpeg_log_callback_null);
+	}
 
 	ffmpeg_pFrame = av_frame_alloc();
 	ffmpeg_pFormatCtx = avformat_alloc_context();
@@ -52,7 +62,7 @@ void ffmpeg_init(const char* videoPath)
 
 	int err = 0;
 
-	if ((err = avformat_open_input(&ffmpeg_pFormatCtx, videoPath, NULL, NULL)) != 0)
+	if ((err = avformat_open_input(&ffmpeg_pFormatCtx, ARG_VIDEO_PATH, NULL, NULL)) != 0)
 	{
 		ffmpeg_print_error(err);
 		throw std::runtime_error("Couldn't open file. Possibly it doesn't exist.");
@@ -312,8 +322,8 @@ void output_vectors_raw(int frameIndex, int64_t pts, char pictType, vector<AVMot
 	for(int i = 0; i < motionVectors.size(); i++)
 	{
 		AVMotionVector& mv = motionVectors[i];
-		int mvdx = mv.src_x - mv.dst_x;
-		int mvdy = mv.src_y - mv.dst_y;
+		int mvdx = mv.dst_x - mv.src_x;
+		int mvdy = mv.dst_y - mv.src_y;
 
 		printf("%d\t%d\t%d\t%d\n", mv.dst_x, mv.dst_y, mvdx, mvdy);
 	}
@@ -346,8 +356,8 @@ void output_vectors_std(int frameIndex, int64_t pts, char pictType, vector<AVMot
 	for(int i = 0; i < motionVectors.size(); i++)
 	{
 		AVMotionVector& mv = motionVectors[i];
-		int mvdx = mv.src_x - mv.dst_x;
-		int mvdy = mv.src_y - mv.dst_y;
+		int mvdx = mv.dst_x - mv.src_x;
+		int mvdy = mv.dst_y - mv.src_y;
 
 		size_t i_clipped = max(size_t(0), min(mv.dst_y / FrameInfo::GRID_STEP, FrameInfo::Shape.first - 1)); 
 		size_t j_clipped = max(size_t(0), min(mv.dst_x / FrameInfo::GRID_STEP, FrameInfo::Shape.second - 1));
@@ -385,11 +395,13 @@ void output_vectors_std(int frameIndex, int64_t pts, char pictType, vector<AVMot
 	prev.push_back(cur);
 }
 
-int main(int argc, const char* argv[])
+void parse_options(int argc, const char* argv[])
 {
 	for(int i = 1; i < argc; i++)
 	{
-		if(strcmp(argv[i], "--raw") == 0)
+		if(strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0)
+			ARG_HELP = true;
+		else if(strcmp(argv[i], "--raw") == 0)
 			ARG_OUTPUT_RAW_MOTION_VECTORS = true;
 		else if(strcmp(argv[i], "--forcegrid8") == 0)
 			ARG_FORCE_GRID_8 = true;
@@ -397,16 +409,22 @@ int main(int argc, const char* argv[])
 			ARG_FORCE_GRID_16 = true;
 		else if(strcmp(argv[i], "--occupancy") == 0)
 			ARG_OUTPUT_OCCUPANCY = true;
+		else if(strcmp(argv[i], "-q") == 0 || strcmp(argv[i], "--quiet") == 0)
+			ARG_QUIET = true;
 		else
 			ARG_VIDEO_PATH = argv[i];
 	}
-	if(ARG_VIDEO_PATH == NULL)
+	if(ARG_HELP || ARG_VIDEO_PATH == NULL)
 	{
-		fprintf(stderr, "Usage: mpegflow [--raw | [[--forcegrid8 | --forcegrid16] [--occupancy]] videoPath\n  --raw will prevent motion vectors from being arranged in a matrix.\n  --forcegrid8 will force fine 8x8 grid.\n  --forcegrid16 will to force coarse 16x16 grid.\n  --occupancy will append occupancy matrix after motion vector matrices. \n");
+		fprintf(stderr, "Usage: mpegflow [--raw | [[--forcegrid8 | --forcegrid16] [--occupancy]] videoPath\n  --help and -h will output this help message.\n  --raw will prevent motion vectors from being arranged in a matrix.\n  --forcegrid8 will force fine 8x8 grid.\n  --forcegrid16 will to force coarse 16x16 grid.\n  --occupancy will append occupancy matrix after motion vector matrices.\n  --quiet will suppress debug output.\n");
 		exit(1);
 	}
+}
 
-	ffmpeg_init(ARG_VIDEO_PATH);
+int main(int argc, const char* argv[])
+{
+	parse_options(argc, argv);
+	ffmpeg_init();
 		
 	int64_t pts, prev_pts = -1;
 	char pictType;
@@ -416,7 +434,8 @@ int main(int argc, const char* argv[])
 	{
 		if(pts <= prev_pts && prev_pts != -1)
 		{
-			fprintf(stderr, "Skipping frame %d (frame with pts %d already processed)\n", int(frameIndex), int(pts));
+			if(!ARG_QUIET)
+				fprintf(stderr, "Skipping frame %d (frame with pts %d already processed).\n", int(frameIndex), int(pts));
 			continue;
 		}
 
