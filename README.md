@@ -21,3 +21,6 @@ Option | Description
 --help or -h | will output the usage info
 --dump dumpDir | will skip showing visualization on screen and will save the images to dumpDir instead
 --occupancy | will expect occupancy information from *mpegflow* and will visualize it as well
+
+### License
+All code and scripts are licensed under the [MIT license](http://github.com/vadimkantorov/mpegflow/blob/master/LICENSE).
