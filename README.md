@@ -1,6 +1,6 @@
 # Information & Contact
 
-We release **mpegflow** for easy extraction of MPEG-flow (motion vectors) from video files along with a visualization tool **vis**, both under the [MIT license](http://github.com/vadimkantorov/mpegflow/blob/master/LICENSE). We provide Makefiles for both Linux and Windows, and distribute [binary releases](http://github.com/vadimkantorov/mpegflow/releases) as well.
+We release **mpegflow** for easy extraction of MPEG-flow (motion vectors) from video files along with a visualization tool **vis**, both under the [MIT license](http://github.com/vadimkantorov/mpegflow/blob/master/LICENSE). We provide Makefiles for Linux / Windows and distribute [binary releases](http://github.com/vadimkantorov/mpegflow/releases).
 
 Please submit bugs on [GitHub](http://github.com/vadimkantorov/mpeflow/issues) directly. For any other question, please contact Vadim Kantorov at vadim.kantorov@inria.fr or vadim.kantorov@gmail.com.
 
