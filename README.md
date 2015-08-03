@@ -48,7 +48,7 @@ Option | Description
 - Save visualization to disk:
     > $ mkdir -p vis_dump && ./mpegflow video.avi | ./vis --dump vis_dump video.avi
 
-Runnable examples are in ```examples/extract_motion_vectors.sh``` and ```examples/vis_motion_vectors.sh```. Feel free to use ```vis.cpp``` and ```examples/vis_hue.m``` as examples of reading **mpegflow** output.
+Runnable examples are in ```examples/extract_motion_vectors.sh``` and ```examples/vis_motion_vectors.sh```. Feel free to use ```vis.cpp``` and ```examples/vis_hue.m``` as examples of parsing **mpegflow** output. ```examples/vis_hue``` can also be made to produce hue flow visualizations like above.
 
 # Building from source
 **mpegflow** depends only on a recent FFmpeg, **vis** depends on FFmpeg, OpenCV and libpng. The tools are known to work with FFmpeg 2.7.2 and OpenCV 2.4.11. We strongly recommend using ```dependencies/install_ffmpeg_here_linux.sh``` and ```dependencies/install_opencv_here_linux.sh```, even if you already have the dependencies installed elsewhere. Once the dependencies are visible to g++, run ```make``` to build **mpegflow** and ```make vis``` to build **vis**.
