@@ -13,6 +13,11 @@ If you use this code, please cite our work:
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;year = {2014}  
 }
 
+Source | 3 | 15 | 50
+--- | --- | --- | ---
+**mpegflow** | ![]() | ![]() | ![]()
+Ground truth | ![]() | ![]() | ![]()
+
 # mpegflow
 The tool accepts a video file path as command-line argument and writes MPEG-flow (motion vectors) to standard output. By default, the tool outputs the motion vectors arranged in two matrices - dx and dy.
 
@@ -48,12 +53,12 @@ Option | Description
 - Save visualization to disk:
     > $ mkdir -p vis_dump && ./mpegflow video.avi | ./vis --dump vis_dump video.avi
 
-Runnable examples are in ```examples/extract_motion_vectors.sh``` and ```examples/vis_motion_vectors.sh```. Feel free to use ```vis.cpp``` and ```examples/vis_hue.m``` as examples of reading **mpegflow** output.
+Runnable examples are in ```examples/extract_motion_vectors.sh``` and ```examples/vis_motion_vectors.sh```. Feel free to use ```vis.cpp``` and ```examples/vis_hue.m``` as examples of parsing **mpegflow** output. ```examples/vis_hue``` can also be used to produce hue flow visualizations like above.
 
 # Building from source
 **mpegflow** depends only on a recent FFmpeg, **vis** depends on FFmpeg, OpenCV and libpng. The tools are known to work with FFmpeg 2.7.2 and OpenCV 2.4.11. We strongly recommend using ```dependencies/install_ffmpeg_here_linux.sh``` and ```dependencies/install_opencv_here_linux.sh```, even if you already have the dependencies installed elsewhere. Once the dependencies are visible to g++, run ```make``` to build **mpegflow** and ```make vis``` to build **vis**.
 
-To build tools on Windows:
+To build the tools on Windows:
 
 1. Follow ```dependencies/install_dependencies_here_windows.txt```
 2. Fix OPENCV_DIR, FFMPEG_DIR, VC_VERSION, OPENCV_ARCH in Makefile.nmake if needed
