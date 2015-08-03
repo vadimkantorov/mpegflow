@@ -18,7 +18,7 @@ Below is a visualization of some flow maps of MPI Sintel's alley_1 sequence:
 
 Source | 3 | 15 | 50
 --- | --- | --- | ---
-mpegflow | ![](https://raw.githubusercontent.com/vadimkantorov/mpegflow/master/examples/mpi_sintel_final_alley_1_vis_hue_examples/000003.png) | ![](https://raw.githubusercontent.com/vadimkantorov/mpegflow/master/examples/mpi_sintel_final_alley_1_vis_hue_examples/000015.png) | ![](https://raw.githubusercontent.com/vadimkantorov/mpegflow/master/examples/mpi_sintel_final_alley_1_vis_hue_examples/000050.png)
+mpegflow | <img src="https://raw.githubusercontent.com/vadimkantorov/mpegflow/master/examples/mpi_sintel_final_alley_1_vis_hue_examples/000003.png" width="1024" /> | <img src="https://raw.githubusercontent.com/vadimkantorov/mpegflow/master/examples/mpi_sintel_final_alley_1_vis_hue_examples/000015.png" width="1024" /> | <img src="https://raw.githubusercontent.com/vadimkantorov/mpegflow/master/examples/mpi_sintel_final_alley_1_vis_hue_examples/000050.png" width="1024" />
 Ground truth | ![](https://raw.githubusercontent.com/vadimkantorov/mpegflow/master/examples/mpi_sintel_final_alley_1_vis_hue_examples/gt_frame_0002.png) | ![](https://raw.githubusercontent.com/vadimkantorov/mpegflow/master/examples/mpi_sintel_final_alley_1_vis_hue_examples/gt_frame_0014.png) | ![](https://raw.githubusercontent.com/vadimkantorov/mpegflow/master/examples/mpi_sintel_final_alley_1_vis_hue_examples/gt_frame_0049.png)
 
 # mpegflow
