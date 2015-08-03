@@ -403,9 +403,9 @@ void parse_options(int argc, const char* argv[])
 			ARG_HELP = true;
 		else if(strcmp(argv[i], "--raw") == 0)
 			ARG_OUTPUT_RAW_MOTION_VECTORS = true;
-		else if(strcmp(argv[i], "--forcegrid8") == 0)
+		else if(strcmp(argv[i], "--forcegrid8x8") == 0)
 			ARG_FORCE_GRID_8 = true;
-		else if(strcmp(argv[i], "--forcegrid16") == 0)
+		else if(strcmp(argv[i], "--forcegrid16x16") == 0)
 			ARG_FORCE_GRID_16 = true;
 		else if(strcmp(argv[i], "--occupancy") == 0)
 			ARG_OUTPUT_OCCUPANCY = true;
@@ -416,7 +416,7 @@ void parse_options(int argc, const char* argv[])
 	}
 	if(ARG_HELP || ARG_VIDEO_PATH == NULL)
 	{
-		fprintf(stderr, "Usage: mpegflow [--raw | [[--forcegrid8 | --forcegrid16] [--occupancy]] videoPath\n  --help and -h will output this help message.\n  --raw will prevent motion vectors from being arranged in matrices.\n  --forcegrid8 will force fine 8x8 grid.\n  --forcegrid16 will force coarse 16x16 grid.\n  --occupancy will append occupancy matrix after motion vector matrices.\n  --quiet will suppress debug output.\n");
+		fprintf(stderr, "Usage: mpegflow [--raw | [[--forcegrid8x8 | --forcegrid16x16] [--occupancy]] videoPath\n  --help and -h will output this help message.\n  --raw will prevent motion vectors from being arranged in matrices.\n  --forcegrid8x8 will force fine 8x8 grid.\n  --forcegrid16x16 will force coarse 16x16 grid.\n  --occupancy will append occupancy matrix after motion vector matrices.\n  --quiet will suppress debug output.\n");
 		exit(1);
 	}
 }
