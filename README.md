@@ -13,6 +13,9 @@ If you use this code, please cite our work:
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;year = {2014}
 }
 
+
+Below is a visualization of some flow maps of MPI Sintel's alley_1 sequence:
+
 Source | 3 | 15 | 50
 --- | --- | --- | ---
 mpegflow | ![](https://raw.githubusercontent.com/vadimkantorov/mpegflow/master/examples/mpi_sintel_final_alley_1_vis_hue_examples/000003.png) | ![](https://raw.githubusercontent.com/vadimkantorov/mpegflow/master/examples/mpi_sintel_final_alley_1_vis_hue_examples/000015.png) | ![](https://raw.githubusercontent.com/vadimkantorov/mpegflow/master/examples/mpi_sintel_final_alley_1_vis_hue_examples/000050.png)
