@@ -44,7 +44,9 @@ Option | Description
 **mpegflow** depends only on a recent FFmpeg, **vis** depends on FFmpeg, OpenCV and libpng. The tools are known to work with FFmpeg 2.7.2 and OpenCV 2.4.11. We strongly recommend using ```dependencies/install_ffmpeg_here_linux.sh``` and ```dependencies/install_opencv_here_linux.sh```, even if you already have the dependencies installed elsewhere. Once the dependencies are visible to g++, run ```make``` to build **mpegflow** and ```make vis``` to build **vis**.
 
 To build tools on Windows:
+
 1. Follow ```dependencies/install_dependencies_here_windows.txt```
 2. Fix OPENCV_DIR, FFMPEG_DIR, VC_VERSION, OPENCV_ARCH in Makefile.nmake if needed
 3. Run from Visual Studio Developer Command Prompt (VS2013 x64 Native Tools Command Prompt from VS2013 Community Edition worked for us):
+
  > $ nmake -f Makefile.nmake
