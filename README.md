@@ -14,7 +14,7 @@ If you use this code, please cite our work:
 }
 
 
-Below is a visualization of some flow maps of MPI Sintel's alley_1 sequence:
+Below is a visualization of some flow maps of MPI Sintel's *alley_1* sequence:
 
 Source | 3 | 15 | 50
 --- | --- | --- | ---
