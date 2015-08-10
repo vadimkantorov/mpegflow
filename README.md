@@ -30,8 +30,7 @@ Option | Description
 --- | ---
 --help or -h | will output the usage info
 --raw | will prevent motion vectors from being arranged in matrices
---forcegrid8x8 | will force fine 8x8 grid
---forcegrid16x16 | will force coarse 16x16 grid
+--grid8x8 | will force fine 8x8 grid
 --occupancy | will append occupancy matrix after motion vector matrices
 --quiet | will suppress debug output
 
@@ -47,16 +46,12 @@ Option | Description
 --occupancy | will expect occupancy information from **mpegflow** and will visualize it as well
 
 # Examples
-- Extract motion vectors:
-    > $ ./mpegflow video.avi > flow.txt
-
-- Visualize motion vectors:
-    > $ ./mpegflow video.avi | ./vis video.avi
-
-- Save visualization to disk:
-    > $ mkdir -p vis_dump && ./mpegflow video.avi | ./vis --dump vis_dump video.avi
-
-Runnable examples are in ```examples/extract_motion_vectors.sh``` and ```examples/vis_motion_vectors.sh```. Feel free to use ```vis.cpp``` and ```examples/vis_hue.m``` as examples of parsing **mpegflow** output. ```examples/vis_hue``` can also be used to produce hue flow visualizations like above.
+```bash
+./mpegflow examples/mpi_sintel_final_alley_1.avi > examples/alley_1.txt # to extract motion vectors
+./mpegflow examples/mpi_sintel_final_alley_1.avi | ./vis examples/mpi_sintel_final_alley_1.avi # to visualize motion vectors
+mkdir -p examples/vis_dump && ./mpegflow examples/mpi_sintel_final_alley_1.avi | ./vis --dump examples/vis_dump examples/mpi_sintel_final_alley_1.avi # to save visualization to disk
+```
+Feel free to copy-paste and run the examples above. More runnable examples are in ```examples/extract_motion_vectors.sh``` and ```examples/vis_motion_vectors.sh```. Feel free to use ```vis.cpp``` and ```examples/vis_hue.m``` as examples of parsing **mpegflow** output. ```examples/vis_hue``` can also be used to produce hue flow visualizations like above.
 
 # Building from source
 **mpegflow** depends only on a recent FFmpeg, **vis** depends on FFmpeg, OpenCV and libpng. The tools are known to work with FFmpeg 2.7.2 and OpenCV 2.4.11. We strongly recommend running the following snippet to install the dependencies:
