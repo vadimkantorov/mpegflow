@@ -59,7 +59,20 @@ Option | Description
 Runnable examples are in ```examples/extract_motion_vectors.sh``` and ```examples/vis_motion_vectors.sh```. Feel free to use ```vis.cpp``` and ```examples/vis_hue.m``` as examples of parsing **mpegflow** output. ```examples/vis_hue``` can also be used to produce hue flow visualizations like above.
 
 # Building from source
-**mpegflow** depends only on a recent FFmpeg, **vis** depends on FFmpeg, OpenCV and libpng. The tools are known to work with FFmpeg 2.7.2 and OpenCV 2.4.11. We strongly recommend using ```dependencies/install_ffmpeg_here_linux.sh``` and ```dependencies/install_opencv_here_linux.sh```, even if you already have the dependencies installed elsewhere. Once the dependencies are visible to g++, run ```make``` to build **mpegflow** and ```make vis``` to build **vis**.
+**mpegflow** depends only on a recent FFmpeg, **vis** depends on FFmpeg, OpenCV and libpng. The tools are known to work with FFmpeg 2.7.2 and OpenCV 2.4.11. We strongly recommend running the following snippet to install the dependencies:
+
+```bash
+cd dependencies
+bash install_ffmpeg_here_linux.sh  # to install ffmpeg
+bash install_opencv_here_linux.sh  # to install opencv
+cd ..                              # to move back from dependencies directory
+```
+
+Once the dependencies are visible to g++, run:
+```bash
+make     # to build mpegflow
+make vis # to build vis
+```
 
 To build the tools on Windows:
 
