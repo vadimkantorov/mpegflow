@@ -2,11 +2,7 @@
 #include <cassert>
 #include <cstdlib>
 #include <ctime>
-
-#ifdef _MSC_VER
-#include "inttypes.h"
-#endif
-#include <stdint.h>
+#include <cstdint>
 
 extern "C"
 {
