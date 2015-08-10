@@ -46,11 +46,16 @@ Option | Description
 --occupancy | will expect occupancy information from **mpegflow** and will visualize it as well
 
 # Examples
-```bash
-./mpegflow examples/mpi_sintel_final_alley_1.avi > examples/alley_1.txt # to extract motion vectors
-./mpegflow examples/mpi_sintel_final_alley_1.avi | ./vis examples/mpi_sintel_final_alley_1.avi # to visualize motion vectors
-mkdir -p examples/vis_dump && ./mpegflow examples/mpi_sintel_final_alley_1.avi | ./vis --dump examples/vis_dump examples/mpi_sintel_final_alley_1.avi # to save visualization to disk
-```
+
+- To extract motion vectors:
+  > ./mpegflow examples/mpi_sintel_final_alley_1.avi > examples/alley_1.txt
+
+- To visualize motion vectors:
+  > ./mpegflow examples/mpi_sintel_final_alley_1.avi | ./vis examples/mpi_sintel_final_alley_1.avi
+
+- To save visualization to disk:
+  > mkdir -p examples/vis_dump && ./mpegflow examples/mpi_sintel_final_alley_1.avi | ./vis --dump examples/vis_dump examples/mpi_sintel_final_alley_1.avi
+
 Feel free to copy-paste and run the examples above. More runnable examples are in ```examples/extract_motion_vectors.sh``` and ```examples/vis_motion_vectors.sh```. Feel free to use ```vis.cpp``` and ```examples/vis_hue.m``` as examples of parsing **mpegflow** output. ```examples/vis_hue``` can also be used to produce hue flow visualizations like above.
 
 # Building from source
