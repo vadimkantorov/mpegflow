@@ -177,8 +177,8 @@ struct FrameInfo
 {
 	const static size_t MAX_GRID_SIZE = 512;
 
-	static size_t GRID_STEP;
-	static pair<size_t, size_t> Shape;
+	size_t GridStep;
+	pair<size_t, size_t> Shape;
 
 	int dx[MAX_GRID_SIZE][MAX_GRID_SIZE];
 	int dy[MAX_GRID_SIZE][MAX_GRID_SIZE];
@@ -215,30 +215,6 @@ struct FrameInfo
 		}
 		Empty = false;
 		Origin = "interpolated";
-	}
-
-	void SetShapeIfNotSet(vector<AVMotionVector>& motionVectors)
-	{
-		if(GRID_STEP == 0)
-		{
-			if(ARG_FORCE_GRID_8)
-			{
-				GRID_STEP = 8;
-			}
-			else if(ARG_FORCE_GRID_16)
-			{
-				GRID_STEP = 16;
-			}
-			else
-			{
-				int mb8 = 0;
-				for(int i = 0; i < motionVectors.size(); i++)
-					mb8 += (motionVectors[i].w == 8 ? 1 : 0) + (motionVectors[i].h == 8 ? 1 : 0);
-				
-				GRID_STEP = mb8 > int(0.1 * 2 * motionVectors.size()) ? 8 : 16;
-			}
-			Shape = make_pair(min(ffmpeg_frameHeight / GRID_STEP, MAX_GRID_SIZE), min(ffmpeg_frameWidth / GRID_STEP, MAX_GRID_SIZE));
-		}
 	}
 
 	void FillInSomeMissingVectorsInGrid8()
@@ -313,9 +289,6 @@ struct FrameInfo
 	}
 };
 
-size_t FrameInfo::GRID_STEP;
-pair<size_t, size_t> FrameInfo::Shape;
-
 void output_vectors_raw(int frameIndex, int64_t pts, char pictType, vector<AVMotionVector>& motionVectors)
 {
 	printf("# pts=%ld frame_index=%d pict_type=%c output_type=raw shape=%lux4\n", pts, frameIndex, pictType, motionVectors.size());
@@ -333,6 +306,9 @@ void output_vectors_std(int frameIndex, int64_t pts, char pictType, vector<AVMot
 {
 	static vector<FrameInfo> prev;
 
+	size_t gridStep = ARG_FORCE_GRID_8 ? 8 : 16;
+	pair<size_t, size_t> shape = make_pair(min(ffmpeg_frameHeight / gridStep, FrameInfo::MAX_GRID_SIZE), min(ffmpeg_frameWidth / gridStep, FrameInfo::MAX_GRID_SIZE));
+
 	if(!prev.empty() && pts != prev.back().Pts + 1)
 	{
 		for(int64_t dummy_pts = prev.back().Pts + 1; dummy_pts < pts; dummy_pts++)
@@ -342,6 +318,8 @@ void output_vectors_std(int frameIndex, int64_t pts, char pictType, vector<AVMot
 			dummy.Pts = dummy_pts;
 			dummy.Origin = "dummy";
 			dummy.PictType = '?';
+			dummy.GridStep = gridStep;
+			dummy.Shape = shape;
 			prev.push_back(dummy);
 		}
 	}
@@ -351,7 +329,8 @@ void output_vectors_std(int frameIndex, int64_t pts, char pictType, vector<AVMot
 	cur.Pts = pts;
 	cur.Origin = "video";
 	cur.PictType = pictType;
-	cur.SetShapeIfNotSet(motionVectors);
+	cur.GridStep = gridStep;
+	cur.Shape = shape;
 
 	for(int i = 0; i < motionVectors.size(); i++)
 	{
@@ -359,8 +338,8 @@ void output_vectors_std(int frameIndex, int64_t pts, char pictType, vector<AVMot
 		int mvdx = mv.dst_x - mv.src_x;
 		int mvdy = mv.dst_y - mv.src_y;
 
-		size_t i_clipped = max(size_t(0), min(mv.dst_y / FrameInfo::GRID_STEP, FrameInfo::Shape.first - 1)); 
-		size_t j_clipped = max(size_t(0), min(mv.dst_x / FrameInfo::GRID_STEP, FrameInfo::Shape.second - 1));
+		size_t i_clipped = max(size_t(0), min(mv.dst_y / cur.GridStep, cur.Shape.first - 1)); 
+		size_t j_clipped = max(size_t(0), min(mv.dst_x / cur.GridStep, cur.Shape.second - 1));
 
 		cur.Empty = false;
 		cur.dx[i_clipped][j_clipped] = mvdx;
@@ -368,7 +347,7 @@ void output_vectors_std(int frameIndex, int64_t pts, char pictType, vector<AVMot
 		cur.occupancy[i_clipped][j_clipped] = true;
 	}
 
-	if(FrameInfo::GRID_STEP == 8)
+	if(cur.GridStep == 8)
 		cur.FillInSomeMissingVectorsInGrid8();
 	
 	if(frameIndex == -1)
@@ -403,10 +382,8 @@ void parse_options(int argc, const char* argv[])
 			ARG_HELP = true;
 		else if(strcmp(argv[i], "--raw") == 0)
 			ARG_OUTPUT_RAW_MOTION_VECTORS = true;
-		else if(strcmp(argv[i], "--forcegrid8x8") == 0)
+		else if(strcmp(argv[i], "--grid8x8") == 0)
 			ARG_FORCE_GRID_8 = true;
-		else if(strcmp(argv[i], "--forcegrid16x16") == 0)
-			ARG_FORCE_GRID_16 = true;
 		else if(strcmp(argv[i], "--occupancy") == 0)
 			ARG_OUTPUT_OCCUPANCY = true;
 		else if(strcmp(argv[i], "-q") == 0 || strcmp(argv[i], "--quiet") == 0)
@@ -416,7 +393,7 @@ void parse_options(int argc, const char* argv[])
 	}
 	if(ARG_HELP || ARG_VIDEO_PATH == NULL)
 	{
-		fprintf(stderr, "Usage: mpegflow [--raw | [[--forcegrid8x8 | --forcegrid16x16] [--occupancy]] videoPath\n  --help and -h will output this help message.\n  --raw will prevent motion vectors from being arranged in matrices.\n  --forcegrid8x8 will force fine 8x8 grid.\n  --forcegrid16x16 will force coarse 16x16 grid.\n  --occupancy will append occupancy matrix after motion vector matrices.\n  --quiet will suppress debug output.\n");
+		fprintf(stderr, "Usage: mpegflow [--raw | [[--grid8x8] [--occupancy]]] videoPath\n  --help and -h will output this help message.\n  --raw will prevent motion vectors from being arranged in matrices.\n  --grid8x8 will force fine 8x8 grid.\n  --occupancy will append occupancy matrix after motion vector matrices.\n  --quiet will suppress debug output.\n");
 		exit(1);
 	}
 }

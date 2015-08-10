@@ -85,7 +85,7 @@ pair<Mat, int> read_flow()
 	Mat_<int> dx(rows, cols), dy(rows, cols), occupancy(rows, cols);
 	occupancy = 1;
 	Mat flowComponents[] = {dx, dy, occupancy};
-	for(int k = 0; k < ARG_OCCUPANCY ? 3 : 2; k++)
+	for(int k = 0; k < (ARG_OCCUPANCY ? 3 : 2); k++)
 		for(int i = 0; i < rows; i++)
 			for(int j = 0; j < cols; j++)
 				assert(scanf("%d ", &flowComponents[k].at<int>(i, j)) == 1);
@@ -114,7 +114,7 @@ void parse_options(int argc, const char* argv[])
 	}
 	if(ARG_HELP || ARG_VIDEO_PATH == NULL)
 	{
-		fprintf(stderr, "Usage: cat mpegflow.txt | ./vis [--dump dumpDir] videoPath\n  --help and -h will output this help message.\n  --dump will skip showing visualization on screen and will save the images to dumpDir instead\n  --occupancy will expect --occupancy option used for the mpegflow call and will visualize occupancy grid");
+		fprintf(stderr, "Usage: cat mpegflow.txt | ./vis [--dump dumpDir] videoPath\n  --help and -h will output this help message.\n  --dump will skip showing visualization on screen and will save the images to dumpDir instead\n  --occupancy will expect --occupancy option used for the mpegflow call and will visualize occupancy grid\n");
 		exit(1);
 	}
 }

@@ -8,4 +8,4 @@
 ../mpegflow --raw mpi_sintel_final_alley_1.avi > alley_1_raw.txt
 
 # extract motion vectors with enforced 8x8 grid
-../mpegflow --forcegrid8x8 mpi_sintel_final_alley_1.avi > alley_1_grid8x8.txt
+../mpegflow --grid8x8 mpi_sintel_final_alley_1.avi > alley_1_grid8x8.txt

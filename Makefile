@@ -8,7 +8,7 @@ $(BIN_MPEGFLOW): mpegflow.cpp
 	g++ mpegflow.cpp -o $(BIN_MPEGFLOW) $(CFLAGS) $(LDFLAGS) $(INSTALLED_DEPS)
 
 $(BIN_VIS): vis.cpp
-	g++ vis.cpp -o $(BIN_VIS) $(CFLAGS) -lopencv_highgui -lopencv_core -lpng $(LDFLAGS) $(INSTALLED_DEPS)
+	g++ vis.cpp -o $(BIN_VIS) $(CFLAGS) -lopencv_highgui -lopencv_imgproc -lopencv_core -lpng $(LDFLAGS) $(INSTALLED_DEPS)
 
 clean:
 	rm $(BIN_MPEGFLOW) $(BIN_VIS)
