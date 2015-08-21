@@ -6,8 +6,6 @@
 #include <iomanip>
 #include <utility>
 
-#include <opencv2/highgui/highgui.hpp>
-
 using namespace std;
 using namespace cv;
 
@@ -59,17 +57,8 @@ void vis_flow(pair<Mat, int> flow, Mat frame, const char* dumpDir)
 	}
 	
 	stringstream s;
-	s << (dumpDir != NULL ? dumpDir : "") << "/" << setfill('0') << setw(6) << flow.second << ".png";
-	
-	if(dumpDir != NULL)
-	{	
-		imwrite(s.str(), img);
-	}
-	else
-	{
-		imshow(s.str(), img);
-		waitKey();
-	}
+	s << dumpDir << "/" << setfill('0') << setw(6) << flow.second << ".png";
+	imwrite(s.str(), img);
 }
 
 pair<Mat, int> read_flow()
@@ -100,21 +89,18 @@ void parse_options(int argc, const char* argv[])
 {
 	for(int i = 1; i < argc; i++)
 	{
-		if(strcmp(argv[i], "--dump") == 0 && i + 1 < argc)
-		{
-			ARG_DUMP_DIR = argv[i + 1];
-			i++;
-		}
-		else if(strcmp(argv[i], "--occupancy") == 0)
+		if(strcmp(argv[i], "--occupancy") == 0)
 			ARG_OCCUPANCY = true;
 		else if(strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0)
 			ARG_HELP = true;
+		else if(i == argc - 1)
+			ARG_DUMP_DIR = argv[i];
 		else
 			ARG_VIDEO_PATH = argv[i];
 	}
-	if(ARG_HELP || ARG_VIDEO_PATH == NULL)
+	if(ARG_HELP || ARG_VIDEO_PATH == NULL || ARG_DUMP_DIR == NULL)
 	{
-		fprintf(stderr, "Usage: cat mpegflow.txt | ./vis [--dump dumpDir] videoPath\n  --help and -h will output this help message.\n  --dump will skip showing visualization on screen and will save the images to dumpDir instead\n  --occupancy will expect --occupancy option used for the mpegflow call and will visualize occupancy grid\n");
+		fprintf(stderr, "Usage: cat mpegflow.txt | ./vis [--occupancy] videoPath dumpDir\n  --help and -h will output this help message.\n  dumpDir specifies the directory to save the visualization images\n  --occupancy will expect --occupancy option used for the mpegflow call and will visualize occupancy grid\n");
 		exit(1);
 	}
 }
@@ -127,7 +113,8 @@ int main(int argc, const char* argv[])
 
 	VideoCapture in(ARG_VIDEO_PATH);
 	Mat frame;
-	for(int opencvFrameIndex = 1; in.read(frame) ; opencvFrameIndex++)
+	assert(in.read(frame));
+	for(int opencvFrameIndex = 1; in.read(frame); opencvFrameIndex++)
 	{
 		if(opencvFrameIndex == flow.second)
 		{

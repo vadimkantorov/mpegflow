@@ -35,14 +35,13 @@ Option | Description
 --quiet | will suppress debug output
 
 # vis
-The tool accepts a video file path as command-line argument, output of **mpegflow** on standard input and displays (or dumps) visualization of motion vectors overlayed on video frames.
+The tool accepts a video file path and a dump directory as command-line arguments, output of **mpegflow** on standard input and saveson disk the visualization of motion vectors overlayed on video frames.
 
 ##### Command-line options:
 
 Option | Description
 --- | ---
 --help or -h | will output the usage info
---dump dumpDir | will skip showing visualization on screen and will save the images to dumpDir instead
 --occupancy | will expect occupancy information from **mpegflow** and will visualize it as well
 
 # Examples
@@ -51,10 +50,7 @@ Option | Description
   > ./mpegflow examples/mpi_sintel_final_alley_1.avi > examples/alley_1.txt
 
 - To visualize motion vectors:
-  > ./mpegflow examples/mpi_sintel_final_alley_1.avi | ./vis examples/mpi_sintel_final_alley_1.avi
-
-- To save visualization to disk:
-  > mkdir -p examples/vis_dump && ./mpegflow examples/mpi_sintel_final_alley_1.avi | ./vis --dump examples/vis_dump examples/mpi_sintel_final_alley_1.avi
+  > mkdir -p examples/vis_dump && ./mpegflow examples/mpi_sintel_final_alley_1.avi | ./vis examples/mpi_sintel_final_alley_1.avi examples/vis_dump
 
 Feel free to copy-paste and run the examples above. More runnable examples are in ```examples/extract_motion_vectors.sh``` and ```examples/vis_motion_vectors.sh```. Feel free to use ```vis.cpp``` and ```examples/vis_hue.m``` as examples of parsing **mpegflow** output. ```examples/vis_hue``` can also be used to produce hue flow visualizations like above.
 
