@@ -2,7 +2,7 @@
 #include <cassert>
 #include <cstdlib>
 #include <ctime>
-#include <cstdint>
+#include <stdint.h>
 
 extern "C"
 {
