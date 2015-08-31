@@ -1,5 +1,5 @@
 CFLAGS = -O3 -D__STDC_CONSTANT_MACROS
-LDFLAGS = -lswscale -lavdevice -lavformat -lavcodec -lswresample -lavutil -lpthread -lbz2 -lz -lc -lrt
+LDFLAGS = -lswscale -lavdevice -lavformat -lavcodec -lswresample -lavutil -lpthread -lbz2 -lz -lzma -lc -lrt
 INSTALLED_DEPS = -Idependencies/include -Ldependencies/lib
 BIN_MPEGFLOW = mpegflow
 BIN_VIS = vis
