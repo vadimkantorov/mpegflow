@@ -12,5 +12,5 @@ cd ..
 wget http://ffmpeg.org/releases/ffmpeg-2.7.2.tar.gz
 tar -xf ffmpeg-2.7.2.tar.gz
 cd ffmpeg-2.7.2
-./configure --prefix="$(pwd)/.." --yasmexe="$(pwd)/../bin/yasm" --disable-vaapi
+./configure --prefix="$(pwd)/.." --yasmexe="$(pwd)/../bin/yasm" --disable-vaapi --disable-lzma
 make && make install
