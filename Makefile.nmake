@@ -4,13 +4,13 @@ VC_VERSION = vc12
 OPENCV_ARCH = x64
 OPENCV_VER = 249
 
-LIBINCLUDE = /I$(OPENCV_DIR)/include /I$(FFMPEG_DIR)/include /I.
-LIBPATH = /LIBPATH:$(OPENCV_DIR)/$(OPENCV_ARCH)/$(VC_VERSION)/staticlib /LIBPATH:$(FFMPEG_DIR)/lib
-LIBS = zlib.lib opencv_core$(OPENCV_VER).lib opencv_imgproc$(OPENCV_VER).lib avcodec.lib avformat.lib avutil.lib swscale.lib swresample.lib
-BIN = mpegflow.exe
+CFLAGS = /I$(OPENCV_DIR)/include /I$(FFMPEG_DIR)/include /I.
+LDFLAGS = zlib.lib opencv_core$(OPENCV_VER).lib opencv_imgproc$(OPENCV_VER).lib avcodec.lib avformat.lib avutil.lib swscale.lib swresample.lib
+INSTALLED_DEPS = /LIBPATH:$(OPENCV_DIR)/$(OPENCV_ARCH)/$(VC_VERSION)/staticlib /LIBPATH:$(FFMPEG_DIR)/lib
+BIN_MPEGFLOW = mpegflow.exe
 
 all:
-	cl /MT /EHsc /FI msinttypes.h $(LIBINCLUDE) mpegflow.cpp /link $(LIBS) $(LIBPATH) /OUT:$(BIN)
+	cl /MT /EHsc /FI msinttypes.h $(CFLAGS) mpegflow.cpp /link $(LDFLAGS) $(INSTALLED_DEPS) /OUT:$(BIN_MPEGFLOW)
 
 clean:
 	del $(BIN)
