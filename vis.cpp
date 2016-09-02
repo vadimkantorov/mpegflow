@@ -6,6 +6,8 @@
 #include <iomanip>
 #include <utility>
 
+#include <opencv/cv.h>
+
 using namespace std;
 using namespace cv;
 
