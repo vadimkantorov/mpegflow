@@ -73,7 +73,10 @@ make vis # to build vis
 To build the tools on Windows:
 
 1. Follow ```dependencies/install_dependencies_here_windows.txt```
-2. Fix OPENCV_DIR, FFMPEG_DIR, VC_VERSION, OPENCV_ARCH in Makefile.nmake if needed
-3. Run from Visual Studio Developer Command Prompt (VS2013 x64 Native Tools Command Prompt from VS2013 Community Edition worked for us):
+2. Run from Visual Studio Developer Command Prompt (VS2013 x64 Native Tools Command Prompt from VS2013 Community Edition worked for us):
 
- > nmake -f Makefile.nmake
+   ```shell
+nmake mpegflow.exe FFMPEG_DIR=dependencies/ffmpeg-3.0.1-win64-dev/ffmpeg-3.0.1-win64-dev
+# nmake vis.exe OPENCV_DIR=dependencies/opencv-3.1.0/opencv/build/x64/vc14
+```
+3. The Windows build is not fully static. You need to keep avutil-54.dll, avformat-56.dll, avcodec-56.dll, swresample-1.dll (for mpegflow) and opencv_world310.dll (for vis) in the same directory as the binary.
