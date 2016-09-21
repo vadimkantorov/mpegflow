@@ -1,7 +1,7 @@
 0.	Install 7zip
 
 1.	Install OpenCV by downloading a Windows build from http://opencv.org/downloads.html
-	We used this build: http://downloads.sourceforge.net/project/opencvlibrary/opencv-win/2.4.11/opencv-2.4.11.exe
+	We used this build: https://github.com/opencv/opencv/releases/download/2.4.13/opencv-2.4.13.exe
 	Extract the archive in the dependencies directory using 7zip
 
 2.	Install FFmpeg by downloading a Windows build from http://ffmpeg.zeranoe.com/builds/win64/dev/
