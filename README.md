@@ -73,7 +73,7 @@ make vis # to build vis
 To build the tools on Windows:
 
 1. Follow ```dependencies\install_dependencies_here_windows.txt```
-2. Run from Visual Studio Developer Command Prompt (VS2013 x64 Native Tools Command Prompt from VS2013 Community Edition worked for us):
+2. Run from Visual Studio Developer Command Prompt (VS2015 x64 Native Tools Command Prompt from VS2015 Community Edition worked for us):
 
    ```shell
 nmake mpegflow.exe FFMPEG_DIR=dependencies\ffmpeg-3.0.1-win64-dev\ffmpeg-3.0.1-win64-dev
