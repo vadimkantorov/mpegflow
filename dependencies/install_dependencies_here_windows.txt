@@ -5,5 +5,5 @@
 	Extract the archive in the dependencies directory using 7zip
 
 2.	Install FFmpeg by downloading a Windows build from http://ffmpeg.zeranoe.com/builds/win64/dev/
-	We used this build: http://ffmpeg.zeranoe.com/builds/win64/dev/ffmpeg-2.7.2-win64-dev.7z
+	We used this build: http://ffmpeg.zeranoe.com/builds/win64/dev/ffmpeg-2.7-win64-dev.7z
 	Extract the archive in the dependencies directory using 7zip
