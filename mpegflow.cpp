@@ -178,7 +178,7 @@ struct FrameInfo
 
 	int dx[MAX_GRID_SIZE][MAX_GRID_SIZE];
 	int dy[MAX_GRID_SIZE][MAX_GRID_SIZE];
-	bool occupancy[MAX_GRID_SIZE][MAX_GRID_SIZE];
+	uint8_t occupancy[MAX_GRID_SIZE][MAX_GRID_SIZE];
 	int64_t Pts;
 	int FrameIndex;
 	char PictType;
