@@ -4,6 +4,6 @@
 	We used this build: https://github.com/opencv/opencv/releases/download/2.4.13/opencv-2.4.13.exe
 	Extract the archive in the dependencies directory using 7zip
 
-2.	Install FFmpeg by downloading a Windows build from http://ffmpeg.zeranoe.com/builds/win64/dev/
-	We used this build: http://ffmpeg.zeranoe.com/builds/win64/dev/ffmpeg-2.7-win64-dev.7z
-	Extract the archive in the dependencies directory using 7zip
+2.	Install FFmpeg by downloading Windows dev and shared builds from http://ffmpeg.zeranoe.com/builds/win64/dev/
+	We used this build: http://ffmpeg.zeranoe.com/builds/win64/dev/ffmpeg-2.7-win64-dev.7z and http://ffmpeg.zeranoe.com/builds/win64/shared/ffmpeg-2.7-win64-shared.7z
+	Extract the archives in the dependencies directory using 7zip
