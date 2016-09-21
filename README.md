@@ -79,4 +79,4 @@ To build the tools on Windows:
 nmake mpegflow.exe FFMPEG_DIR=dependencies/ffmpeg-3.0.1-win64-dev/ffmpeg-3.0.1-win64-dev
 # nmake vis.exe OPENCV_DIR=dependencies/opencv-3.1.0/opencv/build/x64/vc14
 ```
-3. The Windows build is not fully static. You need to keep avutil-54.dll, avformat-56.dll, avcodec-56.dll, swresample-1.dll (for mpegflow) and opencv_world310.dll (for vis) in the same directory as the binary.
+3. The Windows build is not fully static. You need to keep `avutil-54.dll`, `avformat-56.dll`, `avcodec-56.dll`, `swresample-1.dll` (for **mpegflow**) and `opencv_world310.dll` (for **vis**) in the same directory as the binary.
