@@ -1,16 +1,20 @@
 CFLAGS = -O3 -D__STDC_CONSTANT_MACROS
 LDFLAGS = -lswscale -lavdevice -lavformat -lavcodec -lswresample -lavutil -lpthread -lbz2 -lz -lc -lrt
 INSTALLED_DEPS = -Idependencies/include -Ldependencies/lib
-BIN_MPEGFLOW = mpegflow
-BIN_VIS = vis
 
-$(BIN_MPEGFLOW): mpegflow.cpp
-	g++ mpegflow.cpp -o $(BIN_MPEGFLOW) $(CFLAGS) $(LDFLAGS) $(INSTALLED_DEPS)
+mpegflow: mpegflow.cpp
+	g++ $< -o $@ $(CFLAGS) $(LDFLAGS) $(INSTALLED_DEPS)
 
-$(BIN_VIS): vis.cpp
-	g++ vis.cpp -o $(BIN_VIS) $(CFLAGS) -lopencv_highgui -lopencv_imgproc -lopencv_core -lpng $(LDFLAGS) $(INSTALLED_DEPS)
+vis: vis.cpp
+	g++ $< -o $@ $(CFLAGS) -lopencv_highgui -lopencv_imgproc -lopencv_core -lpng $(LDFLAGS) $(INSTALLED_DEPS) 
+
+mpegflow.exe : mpegflow.cpp
+	cl $? /OUT:$@ /MT /EHsc /I$(FFMPEG_DIR)/include /link avcodec.lib avformat.lib avutil.lib swscale.lib swresample.lib /LIBPATH:$(FFMPEG_DIR)/lib
+	for %I in ($(FFMPEG_DIR:dev=shared)\bin\avutil-*.dll $(FFMPEG_DIR:dev=shared)\bin\avformat-*.dll $(FFMPEG_DIR:dev=shared)\bin\avcodec-*.dll $(FFMPEG_DIR:dev=shared)\bin\swresample-*.dll) do copy %I $(MAKEDIR)
+
+vis.exe: vis.cpp
+	cl $? /OUT:$@ /MT /EHsc /I$(OPENCV_DIR)/../../include /link opencv_world310.lib /LIBPATH:$(OPENCV_DIR)/lib
+	copy $(OPENCV_DIR)\bin\opencv_world310.dll $(MAKEDIR)
 
 clean:
-	rm $(BIN_MPEGFLOW) $(BIN_VIS)
-
-.PHONY: $(BIN_MPEGFLOW) $(BIN_VIS)
+	$(OS:Windows_NT=del) rm mpegflow vis *.exe *.obj *.dll
