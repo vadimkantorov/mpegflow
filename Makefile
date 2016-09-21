@@ -14,7 +14,7 @@ mpegflow.exe : mpegflow.cpp
 
 vis.exe: vis.cpp
 	cl $? /OUT:$@ /MT /EHsc /I$(OPENCV_DIR)/../../include /link opencv_world310.lib /LIBPATH:$(OPENCV_DIR)/lib
-	copy $(OPENCV_DIR)\bin\opencv_world310.dll $(MAKEDIR)
+	for %I in ($(OPENCV_DIR)\bin\opencv_world310.dll $(OPENCV_DIR)\bin\opencv_world310_64.dll) do copy %I $(MAKEDIR)
 
 clean:
 	$(OS:Windows_NT=del) rm mpegflow vis *.exe *.obj *.dll
