@@ -285,6 +285,8 @@ struct FrameInfo
 	}
 };
 
+const size_t FrameInfo::MAX_GRID_SIZE;
+
 void output_vectors_raw(int frameIndex, int64_t pts, char pictType, vector<AVMotionVector>& motionVectors)
 {
 	printf("# pts=%lld frame_index=%d pict_type=%c output_type=raw shape=%zux4\n", pts, frameIndex, pictType, motionVectors.size());
