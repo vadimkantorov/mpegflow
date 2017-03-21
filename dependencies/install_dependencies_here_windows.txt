@@ -1,4 +1,0 @@
-1. Install 7zip
-2. Extract these FFmpeg builds to the dependencies directory using 7zip (for mpegflow and vis): https://ffmpeg.zeranoe.com/builds/win64/dev/ffmpeg-3.0.1-win64-dev.7z and https://ffmpeg.zeranoe.com/builds/win64/shared/ffmpeg-3.0.1-win64-shared.7z
-3. Extract this OpenCV build to the dependencies directory using 7zip (for vis): https://github.com/opencv/opencv/releases/download/3.1.0/opencv-3.1.0.exe
-
