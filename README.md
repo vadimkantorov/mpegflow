@@ -55,14 +55,8 @@ Option | Description
 Feel free to copy-paste and run the examples above. More runnable examples are in ```examples/extract_motion_vectors.sh``` and ```examples/vis_motion_vectors.sh```. Feel free to use ```vis.cpp``` and ```examples/vis_hue.m``` as examples of parsing **mpegflow** output. ```examples/vis_hue``` can also be used to produce hue flow visualizations like above.
 
 # Building from source
-**mpegflow** depends only on a recent FFmpeg, **vis** depends on FFmpeg, OpenCV and libpng. The tools are known to work with FFmpeg 2.7.2 and OpenCV 2.4.11. We strongly recommend running the following snippet to install the dependencies:
-
-```bash
-cd dependencies
-bash install_ffmpeg_here_linux.sh  # to install ffmpeg
-bash install_opencv_here_linux.sh  # to install opencv
-cd ..                              # to move back from dependencies directory
-```
+**mpegflow** depends only on a recent FFmpeg, **vis** depends on FFmpeg, OpenCV and libpng. The tools are known to work with FFmpeg 3.1 and OpenCV 3.1. You may use [wigwam](http://wigwam.in) to install them to a local directory (no root required):
+```wigwam init && wigwam install opencv ffmpeg``` 
 
 Once the dependencies are visible to g++, run:
 ```bash
@@ -72,11 +66,13 @@ make vis # to build vis
 
 To build the tools on Windows:
 
-1. Follow ```dependencies\install_dependencies_here_windows.txt```
-2. Open VS2015 x64 Native Tools Command Prompt (VS2015 Community Edition will work) and run:
+1. Install 7zip
+2. Extract these FFmpeg builds to the dependencies directory using 7zip (for mpegflow and vis): https://ffmpeg.zeranoe.com/builds/win64/dev/ffmpeg-3.0.1-win64-dev.7z and https://ffmpeg.zeranoe.com/builds/win64/shared/ffmpeg-3.0.1-win64-shared.7z
+3. Extract this OpenCV build to the dependencies directory using 7zip (for vis): https://github.com/opencv/opencv/releases/download/3.1.0/opencv-3.1.0.exe
+4. Open VS2015 x64 Native Tools Command Prompt (VS2015 Community Edition will work) and run:
 
    ```shell
 nmake mpegflow.exe FFMPEG_DIR=dependencies\ffmpeg-3.0.1-win64-dev\ffmpeg-3.0.1-win64-dev
 # nmake vis.exe OPENCV_DIR=dependencies\opencv-3.1.0\opencv\build\x64\vc14
 ```
-3. The Windows build is not fully static. You need to keep `avutil-54.dll`, `avformat-56.dll`, `avcodec-56.dll`, `swresample-2.dll` (for **mpegflow**) and `opencv_world310.dll` (for **vis**) in the same directory as the binary. Note that the instructions and the Makefile assume x64 machine architecture.
+5. The Windows build is not fully static. You need to keep `avutil-54.dll`, `avformat-56.dll`, `avcodec-56.dll`, `swresample-2.dll` (for **mpegflow**) and `opencv_world310.dll` (for **vis**) in the same directory as the binary. Note that the instructions and the Makefile assume x64 machine architecture.
