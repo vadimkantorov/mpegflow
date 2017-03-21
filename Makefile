@@ -6,7 +6,7 @@ mpegflow: mpegflow.cpp
 	g++ $< -o $@ $(CFLAGS) $(LDFLAGS) $(INSTALLED_DEPS)
 
 vis: vis.cpp
-	g++ $< -o $@ $(CFLAGS) -lopencv_highgui -lopencv_imgproc -lopencv_core -lpng $(LDFLAGS) $(INSTALLED_DEPS) 
+	g++ $< -o $@ $(CFLAGS) -lopencv_highgui -lopencv_videoio -lopencv_imgproc -lopencv_imgcodecs -lopencv_core -lpng $(LDFLAGS) $(INSTALLED_DEPS) 
 
 mpegflow.exe : mpegflow.cpp
 	cl $? /OUT:$@ /MT /EHsc /I$(FFMPEG_DIR)\include /link avcodec.lib avformat.lib avutil.lib swscale.lib swresample.lib /LIBPATH:$(FFMPEG_DIR)\lib

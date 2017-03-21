@@ -10,6 +10,7 @@
 #include <opencv2/videoio.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/imgcodecs.hpp>
+#include <opencv2/highgui.hpp>
 
 using namespace std;
 using namespace cv;
@@ -69,17 +70,20 @@ void vis_flow(pair<Mat, int> flow, Mat frame, const char* dumpDir)
 pair<Mat, int> read_flow()
 {
 	int rows, cols, frameIndex;
-	bool ok = scanf("# pts=%*ld frame_index=%d pict_type=%*c output_type=%*s shape=%dx%d origin=%*s\n", &frameIndex, &rows, &cols) == 3 && rows % 3 == 0;
+	bool ok = scanf("# pts=%*d frame_index=%d pict_type=%*c output_type=%*s shape=%dx%d origin=%*s\n", &frameIndex, &rows, &cols) == 3;
+	int D = ARG_OCCUPANCY ? 3 : 2;
 	
-	if(!ok)
+	if(!(ok && rows % D == 0))
+	{
 		return make_pair(Mat(), -1);
+	}
 	
-	rows /= 3;
+	rows /= D;
 
 	Mat_<int> dx(rows, cols), dy(rows, cols), occupancy(rows, cols);
 	occupancy = 1;
 	Mat flowComponents[] = {dx, dy, occupancy};
-	for(int k = 0; k < (ARG_OCCUPANCY ? 3 : 2); k++)
+	for(int k = 0; k < D; k++)
 		for(int i = 0; i < rows; i++)
 			for(int j = 0; j < cols; j++)
 				assert(scanf("%d ", &flowComponents[k].at<int>(i, j)) == 1);

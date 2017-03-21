@@ -122,7 +122,7 @@ bool read_packets()
 				return true;
 			else
 			{
-				av_free_packet(&pkt);
+				av_packet_unref(&pkt);
 				initialized = false;
 			}
 		}
@@ -135,7 +135,7 @@ bool read_packets()
 		pktCopy = pkt;
 		if(pkt.stream_index != ffmpeg_videoStreamIndex)
 		{
-			av_free_packet(&pkt);
+			av_packet_unref(&pkt);
 			initialized = false;
 			continue;
 		}
@@ -251,7 +251,7 @@ struct FrameInfo
 		if(FirstPts == -1)
 			FirstPts = Pts;
 		
-		printf("# pts=%lld frame_index=%d pict_type=%c output_type=arranged shape=%zux%zu origin=%s\n", Pts - FirstPts, FrameIndex, PictType, (ARG_OUTPUT_OCCUPANCY ? 3 : 2) * Shape.first, Shape.second, Origin);
+		printf("# pts=%ld frame_index=%d pict_type=%c output_type=arranged shape=%zux%zu origin=%s\n", Pts - FirstPts, FrameIndex, PictType, (ARG_OUTPUT_OCCUPANCY ? 3 : 2) * Shape.first, Shape.second, Origin);
 		for(int i = 0; i < Shape.first; i++)
 		{
 			for(int j = 0; j < Shape.second; j++)
@@ -289,7 +289,7 @@ const size_t FrameInfo::MAX_GRID_SIZE;
 
 void output_vectors_raw(int frameIndex, int64_t pts, char pictType, vector<AVMotionVector>& motionVectors)
 {
-	printf("# pts=%lld frame_index=%d pict_type=%c output_type=raw shape=%zux4\n", pts, frameIndex, pictType, motionVectors.size());
+	printf("# pts=%ld frame_index=%d pict_type=%c output_type=raw shape=%zux4\n", pts, frameIndex, pictType, motionVectors.size());
 	for(int i = 0; i < motionVectors.size(); i++)
 	{
 		AVMotionVector& mv = motionVectors[i];
