@@ -55,17 +55,21 @@ Option | Description
 Feel free to copy-paste and run the examples above. More runnable examples are in ```examples/extract_motion_vectors.sh``` and ```examples/vis_motion_vectors.sh```. Feel free to use ```vis.cpp``` and ```examples/vis_hue.m``` as examples of parsing **mpegflow** output. ```examples/vis_hue``` can also be used to produce hue flow visualizations like above.
 
 # Building from source
-**mpegflow** depends only on a recent FFmpeg, **vis** depends on FFmpeg, OpenCV and libpng. The tools are known to work with FFmpeg 3.1 and OpenCV 3.1. You may use [wigwam](http://wigwam.in) to install them to a local directory (no root required):
-```shell
-wigwam init && wigwam install opencv ffmpeg
-```
-
-You will probably end up with a shared build, for static build, please feel free to play with Makefile.
+**mpegflow** depends only on a recent FFmpeg, **vis** depends on FFmpeg, OpenCV and libpng. The tools are known to work with FFmpeg 3.1 and OpenCV 3.1. 
 
 Once the dependencies are visible to g++, run:
 ```bash
 make     # to build mpegflow
 make vis # to build vis
+```
+
+You will probably end up with a shared build, for static build, please feel free to play with Makefile.
+
+You may use [wigwam](http://wigwam.in) to install them to a local directory (no root required):
+```shell
+wigwam init
+wigwam install opencv ffmpeg
+wigwam in
 ```
 
 To build the tools on Windows:
