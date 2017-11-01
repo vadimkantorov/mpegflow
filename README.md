@@ -74,13 +74,13 @@ wigwam in
 
 To build the tools on Windows:
 
-1. Install 7zip
-2. Create directory `dependencies`
-3. Extract these FFmpeg builds to the `dependencies` directory using 7zip (for mpegflow and vis): https://ffmpeg.zeranoe.com/builds/win64/dev/ffmpeg-3.0.1-win64-dev.7z and https://ffmpeg.zeranoe.com/builds/win64/shared/ffmpeg-3.0.1-win64-shared.7z
-4. Extract this OpenCV build to the `dependencies` directory using 7zip (for vis): https://github.com/opencv/opencv/releases/download/3.1.0/opencv-3.1.0.exe
-5. Open VS2015 x64 Native Tools Command Prompt (VS2015 Community Edition will work) and run:
+1. Create directory `dependencies`
+2. Extract FFmpeg dev and shared [builds](http://ffmpeg.zeranoe.com/builds/) to the `dependencies` directory using 7zip (for mpegflow and vis)
+3. Extract an OpenCV 3.x build to the `dependencies` directory (for vis)
+4. Open VS2015 x64 Native Tools Command Prompt (VS2015 Community Edition will work) and run:
 
 ```shell
+# fix the paths and versions before running
 nmake mpegflow.exe FFMPEG_DIR=dependencies\ffmpeg-3.0.1-win64-dev\ffmpeg-3.0.1-win64-dev
 # nmake vis.exe OPENCV_DIR=dependencies\opencv-3.1.0\opencv\build\x64\vc14
 ```
