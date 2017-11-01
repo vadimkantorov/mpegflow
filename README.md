@@ -81,6 +81,7 @@ To build the tools on Windows:
 
 ```shell
 # fix the paths and versions before running
+
 nmake mpegflow.exe FFMPEG_DIR=dependencies\ffmpeg-3.0.1-win64-dev\ffmpeg-3.0.1-win64-dev
 # nmake vis.exe OPENCV_DIR=dependencies\opencv-3.1.0\opencv\build\x64\vc14
 ```
