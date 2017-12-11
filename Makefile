@@ -13,7 +13,7 @@ mpegflow.exe : mpegflow.cpp
 	for %I in ($(FFMPEG_DIR:dev=shared)\bin\avutil-*.dll $(FFMPEG_DIR:dev=shared)\bin\avformat-*.dll $(FFMPEG_DIR:dev=shared)\bin\avcodec-*.dll $(FFMPEG_DIR:dev=shared)\bin\swresample-*.dll) do copy %I $(MAKEDIR)
 
 vis.exe: vis.cpp
-	cl $? /OUT:$@ /MT /EHsc /I$(OPENCV_DIR)\..\..\include /link opencv_world320.lib /LIBPATH:$(OPENCV_DIR)\lib
+	cl $? /MT /EHsc /I$(OPENCV_DIR)\..\..\include /link opencv_world320.lib /LIBPATH:$(OPENCV_DIR)\lib /OUT:$@
 	for %I in ($(OPENCV_DIR)\bin\opencv_world320.dll $(OPENCV_DIR)\bin\opencv_world320_64.dll) do copy %I $(MAKEDIR)
 
 clean:
