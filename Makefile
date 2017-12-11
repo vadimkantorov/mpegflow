@@ -9,7 +9,7 @@ vis: vis.cpp
 	g++ $< -o $@ $(CFLAGS) -lopencv_highgui -lopencv_videoio -lopencv_imgproc -lopencv_imgcodecs -lopencv_core -lpng $(LDFLAGS) $(INSTALLED_DEPS) 
 
 mpegflow.exe : mpegflow.cpp
-	cl $? /OUT:$@ /MT /EHsc /I$(FFMPEG_DIR)\include /link avcodec.lib avformat.lib avutil.lib swscale.lib swresample.lib /LIBPATH:$(FFMPEG_DIR)\lib
+	cl $? /MT /EHsc /I$(FFMPEG_DIR)\include /link avcodec.lib avformat.lib avutil.lib swscale.lib swresample.lib /LIBPATH:$(FFMPEG_DIR)\lib /OUT:$@
 	for %I in ($(FFMPEG_DIR:dev=shared)\bin\avutil-*.dll $(FFMPEG_DIR:dev=shared)\bin\avformat-*.dll $(FFMPEG_DIR:dev=shared)\bin\avcodec-*.dll $(FFMPEG_DIR:dev=shared)\bin\swresample-*.dll) do copy %I $(MAKEDIR)
 
 vis.exe: vis.cpp
