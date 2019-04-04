@@ -63,14 +63,7 @@ make     # to build mpegflow
 make vis # to build vis
 ```
 
-You will probably end up with a shared build, for static build, please feel free to play with Makefile.
-
-You may use [wigwam](http://wigwam.in) to install them to a local directory (no root required):
-```shell
-wigwam init
-wigwam install opencv ffmpeg
-wigwam in
-```
+You will probably end up with a shared build; for a static build, please feel free to play with Makefile.
 
 To build the tools on Windows:
 
